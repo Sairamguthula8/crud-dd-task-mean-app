@@ -1,0 +1,42 @@
+version: '3.9'
+services:
+  mongo:
+    image: mongo:6
+    container_name: dd-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - dd-network
+
+  backend:
+    build: ./backend
+    container_name: dd-backend
+    restart: always
+    environment:
+      MONGO_URL: mongodb://mongo:27017/dd_db
+    depends_on:
+      - mongo
+    networks:
+      - dd-network
+
+  frontend:
+    build: ./frontend
+    container_name: dd-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - dd-network
+
+networks:
+  dd-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+
